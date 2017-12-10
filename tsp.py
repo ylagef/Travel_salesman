@@ -1,7 +1,8 @@
 from city import City
 from route import Route
+import copy
 
-# INSERT AL DATA FROM TABLE INTO THE DICT()
+population = dict()
 a = City("a", {'a': 'x', 'b': 5, 'c': 4, 'd': 7, 'e': 6, 'f': 5, 'g': 7, 'h': 4, 'i': 2, 'j': 9})
 b = City("b", {'a': 6, 'b': 'x', 'c': 5, 'd': 6, 'e': 4, 'f': 8, 'g': 5, 'h': 4, 'i': 3, 'j': 8})
 c = City("c", {'a': 3, 'b': 5, 'c': 'x', 'd': 3, 'e': 5, 'f': 6, 'g': 9, 'h': 8, 'i': 7, 'j': 6})
@@ -13,4 +14,33 @@ h = City("h", {'a': 5, 'b': 4, 'c': 8, 'd': 7, 'e': 6, 'f': 4, 'g': 4, 'h': 'x',
 i = City("i", {'a': 2, 'b': 3, 'c': 6, 'd': 9, 'e': 8, 'f': 3, 'g': 7, 'h': 5, 'i': 'x', 'j': 7})
 j = City("j", {'a': 9, 'b': 7, 'c': 5, 'd': 4, 'e': 8, 'f': 3, 'g': 9, 'h': 5, 'i': 7, 'j': 'x'})
 
-Route([a, b, c, d, e, f, g, h, i, j]).print_route()
+
+def initial_population(quantity):
+    default_route = Route([a, b, c, d, e, f, g, h, i, j])
+    for _ in range(0, quantity):
+        default_route.randomize_route()
+        new_route = copy.deepcopy(default_route)
+        population[new_route] = new_route.calc_fitness()
+        default_route.print_route()
+
+
+def forced_best_route():
+    best_route = Route
+    best = 100
+    for r, fit in population.items():
+        fitness = fit
+        if fitness < best:
+            best = fit
+            best_route = r
+    print("\nBEST ROUTE:")
+    best_route.print_route()
+
+
+initial_population(5)
+# forced_best_route()
+minimum = min(population.values())
+maximum = max(population.values())
+sum_fits = sum(population.values())
+
+for k, v in population.items():
+    print()
