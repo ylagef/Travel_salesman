@@ -1,8 +1,9 @@
 from city import City
-from route import Route
+from route import Route, random_route
+from random import randint
 import copy
 
-population = dict()
+# Data for this example
 a = City("a", {'a': 'x', 'b': 5, 'c': 4, 'd': 7, 'e': 6, 'f': 5, 'g': 7, 'h': 4, 'i': 2, 'j': 9})
 b = City("b", {'a': 6, 'b': 'x', 'c': 5, 'd': 6, 'e': 4, 'f': 8, 'g': 5, 'h': 4, 'i': 3, 'j': 8})
 c = City("c", {'a': 3, 'b': 5, 'c': 'x', 'd': 3, 'e': 5, 'f': 6, 'g': 9, 'h': 8, 'i': 7, 'j': 6})
@@ -15,32 +16,57 @@ i = City("i", {'a': 2, 'b': 3, 'c': 6, 'd': 9, 'e': 8, 'f': 3, 'g': 7, 'h': 5, '
 j = City("j", {'a': 9, 'b': 7, 'c': 5, 'd': 4, 'e': 8, 'f': 3, 'g': 9, 'h': 5, 'i': 7, 'j': 'x'})
 
 
+# Create the initial random population
 def initial_population(quantity):
-    default_route = Route([a, b, c, d, e, f, g, h, i, j])
-    for _ in range(0, quantity):
-        default_route.randomize_route()
-        new_route = copy.deepcopy(default_route)
-        population[new_route] = new_route.calc_fitness()
-        default_route.print_route()
+    pop = dict()
+    for _ in range(quantity):
+        new_route = Route(random_route([a, b, c, d, e, f, g, h, i, j]))
+        pop[new_route] = new_route.calc_fitness()
+    return pop
 
 
-def forced_best_route():
-    best_route = Route
-    best = 100
-    for r, fit in population.items():
-        fitness = fit
-        if fitness < best:
-            best = fit
-            best_route = r
-    print("\nBEST ROUTE:")
-    best_route.print_route()
+# Evaluate the population - Givin percentages for most fitness-likely routes
+def evaluate_population(pop_to_eval):
+    evaluated_population = dict()
+    selection_array = []
+    minimum = min(pop_to_eval.values())
+    for key, value in pop_to_eval.items():
+        evaluated_population[key] = int(1 / (value - minimum + 1) * 10) + 1
+        for _ in range(int(1 / (value - minimum + 1) * 10) + 1):
+            selection_array.append(key)
+    return selection_array
 
 
-initial_population(5)
-# forced_best_route()
-minimum = min(population.values())
-maximum = max(population.values())
-sum_fits = sum(population.values())
+# Generate new population based on past and percentage of  fitness
+def generate_new_population(s_times, s_rate, s_array, b_ever):
+    n_population = dict()
+    for _ in range(len(population)):
+        new_route = copy.deepcopy(s_array[randint(0, len(sel_array) - 1)]).swap(s_times, s_rate)
+        n_population[new_route] = new_route.fitness
+        if new_route.fitness < b_ever.fitness:
+            b_ever = new_route
+    return n_population, b_ever
 
-for k, v in population.items():
-    print()
+
+# MAIN PROGRAM
+swap_times = 1  # Number of times cities are swapped
+swap_rate = 0.5  # Rate of swapping cities
+population_size = 1000  # Size of population used
+num_of_iterations = 10000  # Number of max iterations
+
+best_ever = Route([a, b, c, d, e, f, g, h, i, j])  # Default best route
+population = initial_population(population_size)  # Generate initial random population
+
+iteration = 0
+for _ in range(num_of_iterations):
+    sel_array = evaluate_population(population)
+    population, best_ever = generate_new_population(swap_times, swap_rate, sel_array, best_ever)
+    print(best_ever.fitness, iteration)
+    if best_ever.fitness < 29:
+        break
+    iteration += 1
+
+print("\nBEST ROUTE FOUND:")
+best_ever.print_route()
+print("Iterations done:", iteration)
+print("\nBEST ROUTE SHOULD BE:\nRoute = c a i f j d e b h g - Fitness = 29")
