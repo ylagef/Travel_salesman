@@ -25,6 +25,7 @@ class Route:
             if i < len(self.route) - 1:
                 next_city = self.route[i + 1]
                 self.fitness += actual_city.dist_to(next_city)
+        self.fitness += actual_city.dist_to(self.route[0])  # Return to first city
         return self.fitness
 
     def swap(self, times, rate):

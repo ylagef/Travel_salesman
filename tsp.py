@@ -50,8 +50,8 @@ def generate_new_population(s_times, s_rate, s_array, b_ever):
 
 # MAIN PROGRAM
 swap_times = 1  # Number of times cities are swapped
-swap_rate = 0.5  # Rate of swapping cities
-population_size = 1000  # Size of population used
+swap_rate = 0.1  # Rate of swapping cities
+population_size = 10000  # Size of population used
 num_of_iterations = 10000  # Number of max iterations
 
 best_ever = Route([a, b, c, d, e, f, g, h, i, j])  # Default best route
@@ -62,11 +62,10 @@ for _ in range(num_of_iterations):
     sel_array = evaluate_population(population)
     population, best_ever = generate_new_population(swap_times, swap_rate, sel_array, best_ever)
     print(best_ever.fitness, iteration)
-    if best_ever.fitness < 29:
+    if best_ever.fitness == 36:
         break
     iteration += 1
 
 print("\nBEST ROUTE FOUND:")
 best_ever.print_route()
 print("Iterations done:", iteration)
-print("\nBEST ROUTE SHOULD BE:\nRoute = c a i f j d e b h g - Fitness = 29")
